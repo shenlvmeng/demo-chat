@@ -1,0 +1,31 @@
+{
+  "name": "demo-chat",
+  "version": "0.0.1",
+  "description": "a anonymous chat room with cookie instead of database",
+  "dependencies": {
+    "body-parser": "^1.15.2",
+    "cookie-parser": "^1.4.3",
+    "express": "^4.14.0",
+    "morgan": "^1.7.0",
+    "socket.io": "^1.5.0"
+  },
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/shenlvmeng/demo-chat.git"
+  },
+  "keywords": [
+    "chat",
+    "cookie",
+    "express"
+  ],
+  "author": "shenlvmeng",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/shenlvmeng/demo-chat/issues"
+  },
+  "homepage": "https://github.com/shenlvmeng/demo-chat#readme"
+}

@@ -1,0 +1,2 @@
+# demo-chat
+A anonymous chat room powered by [socket.io](http://socket.io/) using cookie for user indentification. This demo is inspired by [N-chat](https://github.com/nswbmw/N-chat/wiki) and [A岛](https://h.nimingban.com/Forum).

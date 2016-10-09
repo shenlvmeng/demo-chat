@@ -1,0 +1,51 @@
+body{
+	padding: 0;
+	margin: 0;
+	background-color: #111;
+	font-family: Helvetica, "Microsoft Yahei", sans-serif;
+}
+div#container{
+	width: 500px;
+	height: 310px;
+	position: absolute;
+	margin: -155px 0 0 -250px;
+	left: 50%;
+	top: 50%;
+}
+div#form{
+	line-height: 40px;
+	text-align: center;
+}
+label{
+	color: #fff;
+	font-size: 35px;
+	font-weight: bold;
+	margin: 10px auto;
+	display: block;
+}
+input[type="text"], input[type="password"]{
+	background-color: #111;
+	line-height: 30px;
+	border: 0;
+	border-bottom: 2px solid #fff;
+	text-align: center;
+	color: #fff;
+	font-family: Helvetica, "Microsoft Yahei", sans-serif;
+	font-size: 32px;
+	margin: 8px auto;
+}
+input:focus{
+	outline-width: 0;
+}
+button{
+	width: 350px;
+	height: 2em;
+	background-color: ivory;
+	font-family: "Microsoft Yahei";
+	margin-top: 20px;
+	border: 0;
+	border-radius: 7px;
+	font-size: 30px;
+	font-weight: bold;
+	cursor: pointer;
+}
