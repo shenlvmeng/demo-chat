@@ -39,8 +39,30 @@ io.on('connection', function(socket){
 		}
 		console.log(online_users);
 		//broadcast to all users
-		io.sockets.emit('online', {users: online_users, name: data.name});
-	})
+		io.emit('online', {users: online_users, name: data.name});
+	});
+	//chat message
+	socket.on('chat', function(data){
+		if(data.to == "all"){
+			socket.broadcast.emit('chat', data);
+		} else {
+			for(var i in io.sockets.sockets){
+				if(io.sockets.sockets[i].name == data.to){
+					console.log("Send ok!");
+					io.sockets.sockets[i].emit('chat', data);
+					break;
+				}
+			}
+		}
+	});
+	//somebody offline
+	socket.on('disconnect', function(){
+		console.log(socket.name+" comes out.");
+		if(online_users[socket.name]){
+			delete online_users[socket.name];
+			socket.broadcast.emit('offline', {users: online_users, name: socket.name});
+		}
+	});
 })
 
 server.listen(app.get('port'), function(){

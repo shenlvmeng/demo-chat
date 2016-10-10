@@ -161,3 +161,16 @@ span#action a{
 	color: #333;
 	font-size: 14px;
 }
+.screen{
+	width: 14em;
+	height: 2em;
+	position: absolute;
+	margin: -1em 0 0 -7em;
+	left: 50%;
+	top: 50%;
+	font-family: Helvetica, "Microsoft Yahei", sans-serif;
+	color: #fff;
+	font-size: 40px;
+	font-weight: bold;
+	text-align: center;
+}

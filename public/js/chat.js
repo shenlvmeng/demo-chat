@@ -22,6 +22,32 @@ $().ready(function(){
 		}
 		refreshUsers(data.users);
 	});
+	socket.on('chat', function(data){
+		if(data.to == "all" && to == "all"){
+			$("#chat_content").append('<div>' + data.from + '(' + now() + ')对 所有人 说：<br/>' + data.msg + '</div><br />');
+		} else if(data.to == name) {
+			//TODO:some notification
+			$("#chat_content").append('<div style="color:#00f" >' + data.msg + '</div>');
+		}
+	});
+	socket.on('offline', function(data){
+		console.log(data.name+" is offline.");
+		var text = '<div style="color:#f00">SYSTEM(' + now() + '): ' + '用户 ' + data.name + ' 下线了！</div>';
+		refreshUsers(data.users);
+		if("all" == to){
+			$("#chat_content").append(text);
+		} else if(data.name == to) {
+			to = "all";
+			$("#user_list li:first-child").trigger("click");
+		}
+	});
+	socket.on('disconnect', function(){
+		var text = '<div class="screen">连接服务器失败!</div>';
+		$('body').empty().css("background-color","#111").append(text);
+	});
+	socket.on('reconnect', function(){
+		location.reload();
+	});
 
 	//refrensh online user
 	function refreshUsers(users){
@@ -32,6 +58,9 @@ $().ready(function(){
 		for(var i in users){
 			$('#user_list ul').append("<li title='"+i+"'><img src='pic/pic"+(parseInt(users[i], 16)+1)+".jpg' /><div class='user_name'>"+i+"</div></li>");
 			len++;
+		}
+		if("all" == to){
+			$("#title").html("大厅 ("+len+")");
 		}
 		$("#user_list ul > li").click(function(){
 			if($(this).attr('title') != name){
@@ -45,7 +74,7 @@ $().ready(function(){
 
 	//refresh chat target
 	function retarget(len){
-		$("#title").html(to == "all" ? "大厅("+len+")" : to+"(2)");
+		$("#title").html(to == "all" ? "大厅 ("+len+")" : to+" (2)");
 		$("#chat_content").empty();
 	}
 
@@ -55,4 +84,22 @@ $().ready(function(){
 		var time = date.getFullYear() + '-' + (date.getMonth() + 1) + '-' + date.getDate() + ' ' + date.getHours() + ':' + (date.getMinutes() < 10 ? ('0' + date.getMinutes()) : date.getMinutes()) + ":" + (date.getSeconds() < 10 ? ('0' + date.getSeconds()) : date.getSeconds());
 		return time;
 	}
+
+	$("#action").click(function(){
+		var msg = $("#say_something textarea").val();
+		if(msg.trim() == "") return false;
+		//append message in chat field
+		$("#chat_content").append("<div>"+msg+"</div>");
+		socket.emit('chat', {from: name, to: to, msg: msg});
+		//clear input field
+		$("#say_something textarea").val("").focus();
+	});
+
+	$(window).keydown(function (e) {
+		if (e.keyCode == 116) {
+			if (!confirm("刷新将会清除所有聊天记录，确定要刷新么？")) {
+				e.preventDefault();
+			}
+		}
+	});
 });
