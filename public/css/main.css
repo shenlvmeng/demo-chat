@@ -115,10 +115,14 @@ div#chat_title{
 	text-align: center;
 }
 div#chat_content{
-	height: 490px;
+	height: 470px;
 	overflow-y: scroll;
 	overflow-x: hidden;
-	padding: 0 10px;
+	padding: 10px 10px 0 10px;
+	background-color: snow;
+}
+div#chat_content div{
+	margin-bottom: 10px;
 }
 div#chat_input{
 	height: 200px;
@@ -173,4 +177,33 @@ span#action a{
 	font-size: 40px;
 	font-weight: bold;
 	text-align: center;
+}
+.sys{
+	display: table;
+	margin: 0 auto;
+	height: 1.5em;
+	padding: 0 10px;
+	font-size: 12px;
+	background-color: #999;
+	color: #fff;
+	border-radius: 4px;
+	text-align: center;
+}
+.others, .self{
+	width: 100px;
+	max-width: 700px;
+	font-size: 15px;
+	height: 2em;
+	padding: 5px 10px;
+	line-height: 30px;
+}
+.others{
+	background-color: #fff;
+	border: 1px solid #ddd;
+	border-radius: 3px;
+}
+.self{
+	text-align: right;
+	background-color: limegreen;
+	border-radius: 3px;
 }

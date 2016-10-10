@@ -7,15 +7,21 @@ $().ready(function(){
 	var socket = io();
 	var name = Cookies.get('user');
 	var to = "all";
+	var timenow = 0;
+	var timemark = null;
 	socket.emit('online', {name: name});
 	$("#user_id").html(name);
 	$("#status").html("在线").attr("class","online");
 	socket.on('online', function(data){
 		console.log(data.name+" is online.");
+		timemark = now();
+		if(timemark){
+			$("#chat_content").append("<div class='sys'>"+timemark+"</div>");
+		}
 		if(data.name != name){
-			var text = '<div style="color:#f00">SYSTEM(' + now() + '): ' + '用户 ' + data.name + ' 上线了</div>';
+			var text = '<div class="sys">用户 ' + data.name + ' 上线了</div>';
 		} else {
-			var text = '<div style="color:#f00">SYSTEM(' + now() + '): 你进入了聊天室！</div>';
+			var text = '<div class="sys">你进入了聊天室！</div>';
 		}
 		if("all" == to){
 			$("#chat_content").append(text);
@@ -23,16 +29,24 @@ $().ready(function(){
 		refreshUsers(data.users);
 	});
 	socket.on('chat', function(data){
+		timemark = now();
+		if(timemark){
+			$("#chat_content").append("<div class='sys'>"+timemark+"</div>");
+		}
 		if(data.to == "all" && to == "all"){
-			$("#chat_content").append('<div>' + data.from + '(' + now() + ')对 所有人 说：<br/>' + data.msg + '</div><br />');
+			$("#chat_content").append($("<p/>").html('<div class="others">' + data.msg + '</div>'));
 		} else if(data.to == name) {
 			//TODO:some notification
-			$("#chat_content").append('<div style="color:#00f" >' + data.msg + '</div>');
+			$("#chat_content").append('<p><div class="others" >' + data.msg + '</div></p>');
 		}
 	});
 	socket.on('offline', function(data){
 		console.log(data.name+" is offline.");
-		var text = '<div style="color:#f00">SYSTEM(' + now() + '): ' + '用户 ' + data.name + ' 下线了！</div>';
+		timemark = now();
+		if(timemark){
+			$("#chat_content").append("<div class='sys'>"+timemark+"</div>");
+		}
+		var text = '<div class="sys">用户 ' + data.name + ' 下线了</div>';
 		refreshUsers(data.users);
 		if("all" == to){
 			$("#chat_content").append(text);
@@ -81,7 +95,17 @@ $().ready(function(){
 	//get current time
 	function now(){
 		var date = new Date();
-		var time = date.getFullYear() + '-' + (date.getMonth() + 1) + '-' + date.getDate() + ' ' + date.getHours() + ':' + (date.getMinutes() < 10 ? ('0' + date.getMinutes()) : date.getMinutes()) + ":" + (date.getSeconds() < 10 ? ('0' + date.getSeconds()) : date.getSeconds());
+		var stamp = Math.floor(date.getTime()/1000);
+		if(stamp - timenow < 60){
+			timenow = stamp;
+			return false;
+		}
+		if($("#chat_content .sys").length == 0){
+			var time = date.getFullYear() + '-' + (date.getMonth() + 1) + '-' + date.getDate() + ' ' + date.getHours() + ':' + (date.getMinutes() < 10 ? ('0' + date.getMinutes()) : date.getMinutes());
+		} else {
+			var time = date.getHours() + ':' + (date.getMinutes() < 10 ? ('0' + date.getMinutes()) : date.getMinutes());
+		}
+		timenow = stamp;
 		return time;
 	}
 
@@ -89,7 +113,7 @@ $().ready(function(){
 		var msg = $("#say_something textarea").val();
 		if(msg.trim() == "") return false;
 		//append message in chat field
-		$("#chat_content").append("<div>"+msg+"</div>");
+		$("#chat_content").append($("<p/>").html("<div class='self'>"+msg+"</div>"));
 		socket.emit('chat', {from: name, to: to, msg: msg});
 		//clear input field
 		$("#say_something textarea").val("").focus();
