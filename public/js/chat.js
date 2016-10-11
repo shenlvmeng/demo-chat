@@ -35,14 +35,16 @@ $().ready(function(){
 		}
 		//set left p height because of float:left
 		var k = (parseInt(data.imgKey, 16)+1) || 1;
-		var p_q = $("<p/>").html('<img src="pic/pic'+k+'.jpg" class="avatar-l"/><div class="others"><div class="arrow-left"></div><div class="arrow-left-after"></div>' + data.msg + '</div>');
+		var p_q = $("<p/>").html('<img src="pic/pic'+k+'.jpg" class="avatar-l"/><div class="others"><div class="arrow-left"></div><div class="arrow-left-after"></div><pre>' + data.msg + '</pre></div>');
 		if(data.to == "all" && to == "all"){
+			p_q.find("div.others").before("<div class='avatar-name'>"+data.from+"</div>");
 			$("#chat_content").append(p_q);
 		} else if(data.to == name) {
 			//TODO:some notification
 			$("#chat_content").append(p_q);
 		}
-		p_q.height(p_q.find("div.others").height() + 10 || 40);
+		//extra height: name--10px(content) + 5px(margin), div.others--{content height} + 2px(border) + 10px(padding)
+		p_q.height(p_q.find("div.others").height() + 27 || 57);
 	});
 	socket.on('offline', function(data){
 		console.log(data.name+" is offline.");
@@ -123,9 +125,10 @@ $().ready(function(){
 			$("#chat_content").append("<div class='sys'>"+timemark+"</div>");
 		}
 		//set right p height because of float:right
-		var p = $("<p/>").html('<img src="pic/empty.jpg" class="avatar-r" /><div class="self"><div class="arrow-right"></div>' + msg + '</div>');
+		var p = $("<p/>").html('<img src="pic/empty.jpg" class="avatar-r" /><div class="self"><div class="arrow-right"></div><pre>' + msg + '</pre></div>');
 		$("#chat_content").append(p);
 		p.find("img").attr("src", $("#user_info img").attr("src"));
+		//extra height: div.self--{content height} + 10px(padding)
 		p.height(p.find("div.self").height() + 10 || 40);
 
 		socket.emit('chat', {from: name, to: to, msg: msg});
@@ -133,10 +136,19 @@ $().ready(function(){
 		$("#say_something textarea").val("").focus();
 	});
 
+	$("#say_something textarea").keyup(function(e){
+		if(e.keyCode == 13){
+			$("#action").trigger("click");
+			e.preventDefault();
+		}
+	});
+
 	$(window).keydown(function (e) {
 		if (e.keyCode == 116) {
 			if (!confirm("刷新将会清除所有聊天记录，确定要刷新么？")) {
 				e.preventDefault();
+			} else {
+				location.reload();
 			}
 		}
 	});

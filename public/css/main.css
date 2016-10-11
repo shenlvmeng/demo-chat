@@ -5,6 +5,10 @@ html, body{
 	height: 100%;
 	font-family: "Microsoft Yahei", Helvetica, sans-serif;
 }
+pre{
+	margin: 0;
+	font-family: "Microsoft Yahei", Helvetica, sans-serif;
+}
 div#background{
 	width: 100%;
 	height: 100%;
@@ -121,7 +125,7 @@ div#chat_content{
 	padding: 10px 10px 0 10px;
 	background-color: snow;
 }
-div#chat_content div{
+div#chat_content div.sys{
 	margin-bottom: 10px;
 }
 div#chat_input{
@@ -139,7 +143,7 @@ div#say_something textarea{
 	height: 120px;
 	border: 0;
 	resize: none;
-	padding-top: 5px;
+	padding-top: 10px;
 	padding-left: 10px;
 	font-family: Helvetica, "Microsoft Yahei", sans-serif;
 	font-size: 15px;
@@ -221,6 +225,12 @@ img.avatar-l{
 img.avatar-r{
 	float: right;
 	margin-left: 15px;
+}
+div.avatar-name{
+	color: #999;
+	font-size: 10px;
+	line-height: 10px;
+	margin-bottom: 5px;
 }
 div.arrow-left, div.arrow-right{
 	width: 0;
