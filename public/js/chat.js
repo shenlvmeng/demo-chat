@@ -33,12 +33,16 @@ $().ready(function(){
 		if(timemark){
 			$("#chat_content").append("<div class='sys'>"+timemark+"</div>");
 		}
+		//set left p height because of float:left
+		var k = (parseInt(data.imgKey, 16)+1) || 1;
+		var p_q = $("<p/>").html('<img src="pic/pic'+k+'.jpg" class="avatar-l"/><div class="others"><div class="arrow-left"></div><div class="arrow-left-after"></div>' + data.msg + '</div>');
 		if(data.to == "all" && to == "all"){
-			$("#chat_content").append($("<p/>").html("<div class='others'><div class='arrow-left'></div><div class='arrow-left-after'></div>"+data.msg+"</div>"));
+			$("#chat_content").append(p_q);
 		} else if(data.to == name) {
 			//TODO:some notification
-			$("#chat_content").append($("<p/>").html("<div class='others'><div class='arrow-left'></div><div class='arrow-left-after'></div>"+data.msg+"</div>"));
+			$("#chat_content").append(p_q);
 		}
+		p_q.height(p_q.find("div.others").height() + 10 || 40);
 	});
 	socket.on('offline', function(data){
 		console.log(data.name+" is offline.");
@@ -90,6 +94,7 @@ $().ready(function(){
 	function retarget(len){
 		$("#title").html(to == "all" ? "大厅 ("+len+")" : to+" (2)");
 		$("#chat_content").empty();
+		timenow = 0;
 	}
 
 	//get current time
@@ -117,10 +122,11 @@ $().ready(function(){
 		if(timemark){
 			$("#chat_content").append("<div class='sys'>"+timemark+"</div>");
 		}
-		//set heihgt of p
-		var p = $("<p/>").html('<div class="self"><div class="arrow-right"></div>' + msg + '</div>');
+		//set right p height because of float:right
+		var p = $("<p/>").html('<img src="pic/empty.jpg" class="avatar-r" /><div class="self"><div class="arrow-right"></div>' + msg + '</div>');
 		$("#chat_content").append(p);
-		p.height(p.find("div").height() + 10 || 40);
+		p.find("img").attr("src", $("#user_info img").attr("src"));
+		p.height(p.find("div.self").height() + 10 || 40);
 
 		socket.emit('chat', {from: name, to: to, msg: msg});
 		//clear input field

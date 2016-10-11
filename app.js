@@ -43,6 +43,7 @@ io.on('connection', function(socket){
 	});
 	//chat message
 	socket.on('chat', function(data){
+		data.imgKey = users[data.from].substr(-1) || "0";
 		if(data.to == "all"){
 			socket.broadcast.emit('chat', data);
 		} else {

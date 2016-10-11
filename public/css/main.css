@@ -203,12 +203,24 @@ span#action a{
 	z-index: 20;
 }
 .others{
+	float: left;
 	background-color: #fff;
 	border: 1px solid #ddd;
 }
 .self{
 	float: right;
 	background-color: limegreen;
+}
+img.avatar-l, img.avatar-r{
+	width: 40px;
+}
+img.avatar-l{
+	float: left;
+	margin-right: 15px;
+}
+img.avatar-r{
+	float: right;
+	margin-left: 15px;
 }
 div.arrow-left, div.arrow-right{
 	width: 0;
