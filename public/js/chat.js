@@ -34,10 +34,10 @@ $().ready(function(){
 			$("#chat_content").append("<div class='sys'>"+timemark+"</div>");
 		}
 		if(data.to == "all" && to == "all"){
-			$("#chat_content").append($("<p/>").html('<div class="others">' + data.msg + '</div>'));
+			$("#chat_content").append($("<p/>").html("<div class='others'><div class='arrow-left'></div><div class='arrow-left-after'></div>"+data.msg+"</div>"));
 		} else if(data.to == name) {
 			//TODO:some notification
-			$("#chat_content").append('<p><div class="others" >' + data.msg + '</div></p>');
+			$("#chat_content").append($("<p/>").html("<div class='others'><div class='arrow-left'></div><div class='arrow-left-after'></div>"+data.msg+"</div>"));
 		}
 	});
 	socket.on('offline', function(data){
@@ -113,7 +113,15 @@ $().ready(function(){
 		var msg = $("#say_something textarea").val();
 		if(msg.trim() == "") return false;
 		//append message in chat field
-		$("#chat_content").append($("<p/>").html("<div class='self'>"+msg+"</div>"));
+		timemark = now();
+		if(timemark){
+			$("#chat_content").append("<div class='sys'>"+timemark+"</div>");
+		}
+		//set heihgt of p
+		var p = $("<p/>").html('<div class="self"><div class="arrow-right"></div>' + msg + '</div>');
+		$("#chat_content").append(p);
+		p.height(p.find("div").height() + 10 || 40);
+
 		socket.emit('chat', {from: name, to: to, msg: msg});
 		//clear input field
 		$("#say_something textarea").val("").focus();

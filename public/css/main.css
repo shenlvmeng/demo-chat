@@ -190,20 +190,49 @@ span#action a{
 	text-align: center;
 }
 .others, .self{
-	width: 100px;
-	max-width: 700px;
+	display: table;
+	position: relative;
+	max-width: 550px;
 	font-size: 15px;
-	height: 2em;
+	min-height: 2em;
 	padding: 5px 10px;
 	line-height: 30px;
+	word-wrap: break-word;
+	word-break: break-all;
+	border-radius: 3px;
+	z-index: 20;
 }
 .others{
 	background-color: #fff;
 	border: 1px solid #ddd;
-	border-radius: 3px;
 }
 .self{
-	text-align: right;
+	float: right;
 	background-color: limegreen;
-	border-radius: 3px;
+}
+div.arrow-left, div.arrow-right{
+	width: 0;
+	height: 0;
+	border-top: 5px solid transparent;
+	border-bottom: 5px solid transparent;
+	position: absolute;
+}
+div.arrow-left{
+	margin-left: -15px;
+	top: 15px;
+	border-right: 5px solid #fff;
+	z-index: 30;
+}
+div.arrow-left-after{
+	position: absolute;
+	top: 14px;
+	margin-left: -23px;
+	border: 6px solid transparent;
+	border-right: 6px solid #ddd;
+	z-index: 15;
+}
+div.arrow-right{
+	right: -5px;
+	top: 15px;
+	border-left: 5px solid limegreen;
 }
