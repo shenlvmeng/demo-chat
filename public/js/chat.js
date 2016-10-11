@@ -9,6 +9,8 @@ $().ready(function(){
 	var to = "all";
 	var timenow = 0;
 	var timemark = null;
+	var isCtrl = false;
+
 	socket.emit('online', {name: name});
 	$("#user_id").html(name);
 	$("#status").html("在线").attr("class","online");
@@ -136,10 +138,25 @@ $().ready(function(){
 		$("#say_something textarea").val("").focus();
 	});
 
+	$("#say_something textarea").keydown(function(e){
+		if(e.keyCode == 17){
+			isCtrl = true;
+			e.preventDefault();
+		}
+	});
+
 	$("#say_something textarea").keyup(function(e){
 		if(e.keyCode == 13){
-			$("#action").trigger("click");
-			e.preventDefault();
+			if(isCtrl){
+				$("#say_something textarea").val(function(i, text) {
+    				return text + "\r\n";
+				});
+			} else {
+				$("#action").trigger("click");
+				e.preventDefault();
+			}
+		} else if(e.keyCode == 17){
+			isCtrl = false;
 		}
 	});
 
