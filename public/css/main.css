@@ -136,25 +136,24 @@ div#chat_toolbar{
 	background-color: #ccc;
 }
 div#say_something{
-	height: 160px;
+	height: 137px;
 }
 div#say_something textarea{
 	width: 784px;
-	height: 120px;
+	height: 125px;
 	border: 0;
 	resize: none;
 	padding-top: 10px;
 	padding-left: 10px;
 	font-family: Helvetica, "Microsoft Yahei", sans-serif;
 	font-size: 15px;
-	overflow-y: scroll;
+	overflow-y: hidden;
 }
 textarea:focus{
 	outline-width: 0;
 }
 span#action{
 	float: right;
-	margin-top: -20px;
 	margin-right: 30px;
 }
 span#action a{
@@ -262,4 +261,37 @@ div.arrow-right{
 	right: -5px;
 	top: 15px;
 	border-left: 5px solid limegreen;
+}
+/*Scrollbar styles*/
+.scrollContainer{
+	overflow-y: hidden !important;
+}
+.scrollContainer:hover div.scrollfield{
+	opacity: 0.8;
+}
+div.scrollfield{
+	position: absolute;
+	right: 0;
+	width: 10px;
+	background-color: #eee;
+	opacity: 0;
+	-webkit-transition: opacity .2s linear;
+	-moz-transition: opacity .2s linear;
+	-ms-transition: opacity .2s linear;
+	-o-transition: opacity .2s linear;
+	transition: opacity .2s linear;
+}
+aside .scrollfield{
+	background-color: transparent !important;
+	padding: 3px 0;
+}
+#say_something .scrollfield{
+	background-color: #fff;
+	padding-top: 5px;
+}
+div.scrollbar{
+	width: 6px;
+	margin: 0 auto;
+	border-radius: 6px;
+	background-color: #aaa;
 }
