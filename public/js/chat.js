@@ -210,7 +210,7 @@ $().ready(function(){
 		}
 	});
 
-	//update scroll height
+	//update scroll height and position
 	function updateScrollbar(id){
 		var sh = 0;
 		var ch = 0;

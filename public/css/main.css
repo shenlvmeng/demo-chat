@@ -9,27 +9,37 @@ pre{
 	margin: 0;
 	font-family: "Microsoft Yahei", Helvetica, sans-serif;
 }
-div#background{
-	width: 100%;
-	height: 100%;
-	background-image: url("../pic/background.jpg");
-	background-repeat: no-repeat;
-	-webkit-background-size: cover;
-    -moz-background-size: cover;
-    -o-background-size: cover;
-    background-size: cover;
-	filter: blur(12px);
-	z-index: 1;
+@media (min-width: 1000px){
+	div#background{
+		width: 100%;
+		height: 100%;
+		background-image: url("../pic/background.jpg");
+		background-repeat: no-repeat;
+		-webkit-background-size: cover;
+	    -moz-background-size: cover;
+	    -o-background-size: cover;
+	    background-size: cover;
+		filter: blur(12px);
+		z-index: 1;
+	}
+	div#container{
+		width: 1000px;
+		height: 750px;
+		position: absolute;
+		margin: -375px 0 0 -500px;
+		left: 50%;
+		top: 50%;
+		background-color: snow;
+		z-index: 10;
+	}
 }
-div#container{
-	width: 1000px;
-	height: 750px;
-	position: absolute;
-	margin: -375px 0 0 -500px;
-	left: 50%;
-	top: 50%;
-	background-color: snow;
-	z-index: 10;
+@media (max-width: 1000px){
+	div#container{
+		width: 100%;
+		height: 100%;
+		background-color: snow;
+		z-index: 10;
+	}
 }
 aside{
 	position: absolute;
@@ -76,9 +86,20 @@ aside div#user_status .online{
 aside div#user_status .offline{
 	color: red;
 }
-aside div#user_list{
-	height: 675px;
-	overflow-y: auto;
+@media (min-width: 1000px){
+	aside div#user_list{
+		height: 675px;
+		overflow-y: auto;
+	}
+}
+@media (max-width: 1000px){
+	aside div#user_list{
+		position: absolute;
+		top: 77px;
+		bottom: 0px;
+		width: 200px;
+		overflow-y: auto;
+	}
 }
 aside div#user_list ul{
 	padding: 0;
@@ -111,19 +132,42 @@ aside li.active{
 article{
 	margin-left: 200px;
 }
-div#chat_title{
-	width: 95%;
-	margin: 0 auto;
-	border-bottom: 1px solid #ccc;
-	line-height: 3em;
-	text-align: center;
+@media (max-width: 1000px){
+	article{
+		height: 100%;
+	}
 }
-div#chat_content{
-	height: 470px;
-	overflow-y: scroll;
-	overflow-x: hidden;
-	padding: 10px 10px 0 10px;
-	background-color: snow;
+@media (min-width: 1000px){
+	div#chat_title{
+		width: 95%;
+		margin: 0 auto;
+		border-bottom: 1px solid #ccc;
+		line-height: 3em;
+		text-align: center;
+	}
+	div#chat_content{
+		height: 470px;
+		overflow-y: scroll;
+		overflow-x: hidden;
+		padding: 10px 10px 0 10px;
+		background-color: snow;
+	}
+}
+@media (max-width: 1000px){
+	div#chat_title{
+		width: 95%;
+		margin: 0 auto;
+		border-bottom: 1px solid #ccc;
+		line-height: 3em;
+		text-align: center;
+	}
+	div#chat_content{
+		height: 70%;
+		overflow-y: scroll;
+		overflow-x: hidden;
+		padding: 10px 10px 0 10px;
+		background-color: snow;
+	}
 }
 div#chat_content div.sys{
 	margin-bottom: 10px;
@@ -138,16 +182,30 @@ div#chat_toolbar{
 div#say_something{
 	height: 137px;
 }
-div#say_something textarea{
-	width: 784px;
-	height: 125px;
-	border: 0;
-	resize: none;
-	padding-top: 10px;
-	padding-left: 10px;
-	font-family: Helvetica, "Microsoft Yahei", sans-serif;
-	font-size: 15px;
-	overflow-y: hidden;
+@media (min-width: 1000px){
+	div#say_something textarea{
+		width: 784px;
+		height: 125px;
+		border: 0;
+		resize: none;
+		padding-top: 10px;
+		padding-left: 10px;
+		font-family: Helvetica, "Microsoft Yahei", sans-serif;
+		font-size: 15px;
+		overflow-y: hidden;
+	}
+}
+@media (max-width: 1000px){
+	div#say_something textarea{
+		height: 125px;
+		border: 0;
+		resize: none;
+		padding-top: 10px;
+		padding-left: 10px;
+		font-family: Helvetica, "Microsoft Yahei", sans-serif;
+		font-size: 15px;
+		overflow-y: hidden;
+	}
 }
 textarea:focus{
 	outline-width: 0;
