@@ -19,6 +19,9 @@ module.exports = function(app, users){
 				res.redirect('/signin');
 			} else {
 				//use username + password for `user`
+				if(req.body.nickname.length > 15 || req.body.nickname.length <= 0 || req.body.nickname.trim() == "所有人") {
+					res.redirect('/signin');
+				}
 				res.cookie('user', req.body.nickname.trim(), {maxAge: 1000*60*60*24*10});
 				res.cookie('key', md5(req.body.password+"shenlvmeng"), {maxAge: 1000*60*60*24*10});
 				users[req.body.nickname.trim()] = md5(req.body.password+"shenlvmeng");

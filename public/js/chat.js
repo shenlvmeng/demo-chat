@@ -2,8 +2,11 @@ $().ready(function(){
 	var socket = io();
 	var name = Cookies.get('user');
 	var to = "all";
+	var isQuiet = false;
+	//for now()
 	var timenow = 0;
 	var timemark = null;
+	//for textarea hotkey
 	var isCtrl = false;
 	//redesign scrollbar
 	var sc = appendScrollbar($("#chat_content"), "c");
@@ -12,7 +15,7 @@ $().ready(function(){
 
 	socket.emit('online', {name: name});
 	$("#user_id").html(name);
-	$("#status").html("在线").attr("class","online");
+	$("#status").attr("class","online");
 	socket.on('online', function(data){
 		console.log(data.name+" is online.");
 		timemark = now();
@@ -64,6 +67,26 @@ $().ready(function(){
 			$("#user_list li:first-child").trigger("click");
 		}
 	});
+	socket.on('quiet', function(data){
+		if(data.name == to){
+			$("#user_list li:first-child").trigger("click");
+		}
+		var qli = $("#user_list ul li").filter(function(){
+			return $(this).find(".user_name").html() == data.name;
+		}).unbind("click").find(".user_name").addClass("quiet");
+	});
+	socket.on('wakeup', function(data){
+		$("#user_list ul li").filter(function(){
+			return $(this).find(".user_name").html() == data.name;
+		}).click(function(){
+			if($(this).attr('title') != name){
+				to = $(this).attr('title');
+				$("#user_list ul > li").removeClass('active');
+				$(this).addClass('active');
+				retarget(2);
+			}
+		}).find(".user_name").removeClass("quiet");
+	})
 	socket.on('disconnect', function(){
 		var text = '<div class="screen">连接服务器失败!</div>';
 		$('body').empty().css("background-color","#111").append(text);
@@ -99,8 +122,10 @@ $().ready(function(){
 	//refresh chat target
 	function retarget(len){
 		$("#title").html(to == "all" ? "大厅 ("+len+")" : to+" (2)");
-		$("#chat_content").empty();
+		$("#chat_content .sys").remove();
+		$("#chat_content p").remove();
 		timenow = 0;
+		updateScrollbar("c");
 	}
 
 	//get current time
@@ -119,6 +144,45 @@ $().ready(function(){
 		timenow = stamp;
 		return time;
 	}
+
+	//change status
+	$("#status").click(function(){
+		if(!isQuiet){
+			if(confirm("确认切换到免打扰状态（只接收大厅消息和系统消息）")){
+				socket.emit("quiet", {name: name});
+				isQuiet = true;
+				$("#status").html("免打扰 <span>▼</span>").attr({class: "offline", title: "点击可切换为在线状态"});
+			}
+		} else {
+			socket.emit("wakeup", {name: name});
+			isQuiet = false;
+			$("#status").html("在线 <span>▼</span>").attr({class: "online", title: "点击可切换为在线状态"});
+		}
+	});
+
+	$("#action").click(function(){
+		var msg = $("#say_something textarea").val();
+		if(msg.trim() == "") return false;
+		//append message in chat field
+		timemark = now();
+		if(timemark){
+			$("#chat_content").append("<div class='sys'>"+timemark+"</div>");
+		}
+		//set right p height because of float:right
+		var p = $("<p/>").html('<img src="pic/empty.jpg" class="avatar-r" /><div class="self"><div class="arrow-right"></div><pre>' + msg + '</pre></div>');
+		$("#chat_content").append(p);
+		p.find("img").attr("src", $("#user_info img").attr("src"));
+		//extra height: div.self--{content height} + 10px(padding)
+		p.height(p.find("div.self").height() + 10 || 40);
+		updateScrollbar("c");
+
+		if(!isQuiet){
+			socket.emit('chat', {from: name, to: to, msg: msg});
+		}
+		//clear input field
+		$("#say_something textarea").val("").focus();
+		updateScrollbar("s");
+	});
 
 	//simulate scroll bar
 	sc.bind('wheel', function(e){
@@ -148,28 +212,6 @@ $().ready(function(){
 	        sst.scrollTop(Math.min(sst.scrollTop() + e.originalEvent.deltaY / 2), sst.prop("scrollHeight") - sst.prop("clientHeight"));
 	    }
 	    ss.find(".scrollbar").css("margin-top", sst.scrollTop() * 132 / sst.prop("scrollHeight"));
-	});
-
-	$("#action").click(function(){
-		var msg = $("#say_something textarea").val();
-		if(msg.trim() == "") return false;
-		//append message in chat field
-		timemark = now();
-		if(timemark){
-			$("#chat_content").append("<div class='sys'>"+timemark+"</div>");
-		}
-		//set right p height because of float:right
-		var p = $("<p/>").html('<img src="pic/empty.jpg" class="avatar-r" /><div class="self"><div class="arrow-right"></div><pre>' + msg + '</pre></div>');
-		$("#chat_content").append(p);
-		p.find("img").attr("src", $("#user_info img").attr("src"));
-		//extra height: div.self--{content height} + 10px(padding)
-		p.height(p.find("div.self").height() + 10 || 40);
-		updateScrollbar("c");
-
-		socket.emit('chat', {from: name, to: to, msg: msg});
-		//clear input field
-		$("#say_something textarea").val("").focus();
-		updateScrollbar("s");
 	});
 
 	$("#say_something textarea").keydown(function(e){

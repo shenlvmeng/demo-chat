@@ -12,6 +12,7 @@ var app = express();
 //online users
 var users = {};
 var online_users = {};
+var quiet_users = {};
 
 app.set('port', process.env.PORT || 3000);
 app.set('views', path.join(__dirname, 'views'));
@@ -44,6 +45,9 @@ io.on('connection', function(socket){
 	//chat message
 	socket.on('chat', function(data){
 		data.imgKey = users[data.from].substr(-1) || "0";
+		if(quiet_users[data.to] || quiet_users[data.from]){
+			return false;
+		}
 		if(data.to == "all"){
 			socket.broadcast.emit('chat', data);
 		} else {
@@ -54,6 +58,20 @@ io.on('connection', function(socket){
 					break;
 				}
 			}
+		}
+	});
+	//somebody tired
+	socket.on('quiet', function(data){
+		quiet_users[data.name] = data.name;
+		console.log(data.name + " becomes quiet.");
+		socket.broadcast.emit('quiet', data);
+	});
+	//somebody wakes up
+	socket.on('wakeup', function(data){
+		if(quiet_users[socket.name]){
+			delete quiet_users[socket.name];
+			console.log(data.name + " wakes up.");
+			socket.broadcast.emit('wakeup', data);
 		}
 	});
 	//somebody offline
