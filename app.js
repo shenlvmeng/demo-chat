@@ -40,7 +40,7 @@ io.on('connection', function(socket){
 		}
 		console.log(online_users);
 		//broadcast to all users
-		io.emit('online', {users: online_users, name: data.name});
+		io.emit('online', {users: online_users, name: data.name, q_users: quiet_users});
 	});
 	//chat message
 	socket.on('chat', function(data){
@@ -63,6 +63,7 @@ io.on('connection', function(socket){
 	//somebody tired
 	socket.on('quiet', function(data){
 		quiet_users[data.name] = data.name;
+		data.len = Object.keys(quiet_users).length;
 		console.log(data.name + " becomes quiet.");
 		socket.broadcast.emit('quiet', data);
 	});
@@ -70,6 +71,7 @@ io.on('connection', function(socket){
 	socket.on('wakeup', function(data){
 		if(quiet_users[socket.name]){
 			delete quiet_users[socket.name];
+			data.len = Object.keys(quiet_users).length;
 			console.log(data.name + " wakes up.");
 			socket.broadcast.emit('wakeup', data);
 		}
@@ -77,9 +79,12 @@ io.on('connection', function(socket){
 	//somebody offline
 	socket.on('disconnect', function(){
 		console.log(socket.name+" comes out.");
+		if(quiet_users[socket.name]){
+			delete quiet_users[socket.name];
+		}
 		if(online_users[socket.name]){
 			delete online_users[socket.name];
-			socket.broadcast.emit('offline', {users: online_users, name: socket.name});
+			socket.broadcast.emit('offline', {users: online_users, name: socket.name, q_users: quiet_users});
 		}
 	});
 })

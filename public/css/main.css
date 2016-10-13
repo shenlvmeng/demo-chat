@@ -360,3 +360,16 @@ div.scrollbar{
 	border-radius: 6px;
 	background-color: #aaa;
 }
+footer{
+	width: 100%;
+	position: fixed;
+	bottom: 50px;
+	color: #eee;
+	font-size: 11px;
+	text-align: center;
+}
+@media (max-width: 1000px){
+	footer{
+		display: none;
+	}
+}

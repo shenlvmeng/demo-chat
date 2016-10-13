@@ -30,7 +30,9 @@ $().ready(function(){
 		if("all" == to){
 			$("#chat_content").append(text);
 		}
+		$("#qu").html(Object.keys(data.q_users).length);
 		refreshUsers(data.users);
+		quietusersMarker(data.q_users);
 	});
 	socket.on('chat', function(data){
 		timemark = now();
@@ -60,6 +62,8 @@ $().ready(function(){
 		}
 		var text = '<div class="sys">用户 ' + data.name + ' 下线了</div>';
 		refreshUsers(data.users);
+		quietusersMarker(data.q_users);
+		$("#qu").html(Object.keys(data.q_users).length);
 		if("all" == to){
 			$("#chat_content").append(text);
 		} else if(data.name == to) {
@@ -68,14 +72,16 @@ $().ready(function(){
 		}
 	});
 	socket.on('quiet', function(data){
+		$("#qu").html(data.len);
 		if(data.name == to){
 			$("#user_list li:first-child").trigger("click");
 		}
-		var qli = $("#user_list ul li").filter(function(){
+		$("#user_list ul li").filter(function(){
 			return $(this).find(".user_name").html() == data.name;
 		}).unbind("click").find(".user_name").addClass("quiet");
 	});
 	socket.on('wakeup', function(data){
+		$("#qu").html(data.len);
 		$("#user_list ul li").filter(function(){
 			return $(this).find(".user_name").html() == data.name;
 		}).click(function(){
@@ -95,6 +101,14 @@ $().ready(function(){
 		location.reload();
 	});
 
+	//mark quiet users
+	function quietusersMarker(users){
+		for(var i in users){
+			$("#user_list ul li").filter(function(){
+				return $(this).find(".user_name").html() == users[i];
+			}).unbind("click").find(".user_name").addClass("quiet");
+		}
+	}
 	//refrensh online user
 	function refreshUsers(users){
 		$('#user_list ul').empty();
@@ -108,6 +122,7 @@ $().ready(function(){
 		if("all" == to){
 			$("#title").html("大厅 ("+len+")");
 		}
+		$("#on").html(len);
 		$("#user_list ul > li").click(function(){
 			if($(this).attr('title') != name){
 				to = $(this).attr('title');
@@ -151,11 +166,13 @@ $().ready(function(){
 			if(confirm("确认切换到免打扰状态（只接收大厅消息和系统消息）")){
 				socket.emit("quiet", {name: name});
 				isQuiet = true;
+				$("#qu").html(parseInt($("#qu").html()) + 1);
 				$("#status").html("免打扰 <span>▼</span>").attr({class: "offline", title: "点击可切换为在线状态"});
 			}
 		} else {
 			socket.emit("wakeup", {name: name});
 			isQuiet = false;
+			$("#qu").html(Math.max(0, parseInt($("#qu").html()) - 1));
 			$("#status").html("在线 <span>▼</span>").attr({class: "online", title: "点击可切换为在线状态"});
 		}
 	});
