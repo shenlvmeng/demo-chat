@@ -1,10 +1,12 @@
 var md5 = require('./md5');
 
-module.exports = function(app, users){
+module.exports = function(app, users, ousers){
 	app.route('/')
 		.get(function(req, res){
 			if(req.cookies.user == null || !users[req.cookies.user] || users[req.cookies.user] != req.cookies.key){
 				res.redirect('/signin');
+			} else if(ousers[req.cookies.user]) {
+				res.redirect('http://baidu.com');
 			} else {
 				res.sendFile('views/chat.html', {root: __dirname});
 			}
@@ -19,7 +21,7 @@ module.exports = function(app, users){
 				res.redirect('/signin');
 			} else {
 				//use username + password for `user`
-				if(req.body.nickname.length > 15 || req.body.nickname.length <= 0 || req.body.nickname.trim() == "所有人") {
+				if(req.body.nickname.length > 15 || req.body.nickname.length <= 0 || req.body.nickname.trim() == "所有人" || req.body.nickname.trim() == "all") {
 					res.redirect('/signin');
 				}
 				res.cookie('user', req.body.nickname.trim(), {maxAge: 1000*60*60*24*10});

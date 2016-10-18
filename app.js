@@ -24,7 +24,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-router(app, users);
+router(app, users, online_users);
 
 var server = http.createServer(app);
 var io = require('socket.io').listen(server);

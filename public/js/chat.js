@@ -13,6 +13,7 @@ $().ready(function(){
 	var su = appendScrollbar($("#user_list"), "u");
 	var ss = appendScrollbar($("#say_something"), "s");
 
+	sessionStorage.setItem("all", "[]");
 	socket.emit('online', {name: name});
 	$("#user_id").html(name);
 	$("#status").attr("class","online");
@@ -42,14 +43,24 @@ $().ready(function(){
 		//set left p height because of float:left
 		var k = (parseInt(data.imgKey, 16)+1) || 1;
 		var p_q = $("<p/>").html('<img src="pic/pic'+k+'.jpg" class="avatar-l"/><div class="others"><div class="arrow-left"></div><div class="arrow-left-after"></div><pre>' + data.msg + '</pre></div>');
-		if(data.to == "all" && to == "all"){
-			p_q.find("div.others").before("<div class='avatar-name'>"+data.from+"</div>");
+
+		if((data.to == name && to == data.from) || (data.to == "all" && to == "all")){
+			if(to == "all"){
+				p_q.find("div.others").before("<div class='avatar-name'>"+data.from+"</div>");
+			}
 			$("#chat_content").append(p_q);
 			updateScrollbar("c");
-		} else if(data.to == name) {
-			//TODO:some notification
-			$("#chat_content").append(p_q);
-			updateScrollbar("c");
+		} else {
+			//use sessionStorage to store unread message
+			if(data.to == "all"){
+				sessionStorage.setItem("all", JSON.stringify(JSON.parse(sessionStorage.getItem("all")).concat({from: data.from, msg: data.msg, time: now(1), k: k})));
+			} else {
+				if(sessionStorage.getItem(data.from) !== null){
+					sessionStorage.setItem(data.from, JSON.stringify(JSON.parse(sessionStorage.getItem(data.from)).concat({msg: data.msg, time: now(1), k: k})));
+				} else {
+					sessionStorage.setItem(data.from, JSON.stringify([{msg: data.msg, time: now(1), k: k}]));
+				}
+			}
 		}
 		//extra height: name--10px(content) + 5px(margin), div.others--{content height} + 2px(border) + 10px(padding)
 		p_q.height(p_q.find("div.others").height() + 27 || 57);
@@ -136,17 +147,45 @@ $().ready(function(){
 
 	//refresh chat target
 	function retarget(len){
+		var q_p, timestring, date;
 		$("#title").html(to == "all" ? "大厅 ("+len+")" : to+" (2)");
 		$("#chat_content .sys").remove();
 		$("#chat_content p").remove();
 		timenow = 0;
+		if(sessionStorage.getItem(to)){
+			var log = JSON.parse(sessionStorage.getItem(to));
+			//append each div to #chat_content
+			log.forEach(function(l){
+				date = new Date();
+				if(l.time - timenow >= 60){
+					if(timenow == 0){
+						timestring = date.getFullYear() + '-' + (date.getMonth() + 1) + '-' + date.getDate() + ' ' + date.getHours() + ':' + (date.getMinutes() < 10 ? ('0' + date.getMinutes()) : date.getMinutes());
+					} else {
+						timestring = date.getHours() + ':' + (date.getMinutes() < 10 ? ('0' + date.getMinutes()) : date.getMinutes());
+					}
+					$("#chat_content").append("<div class='sys'>"+timestring+"</div>");
+				}
+				timenow = l.time;
+				q_p = $("<p/>").html('<img src="pic/pic'+l.k+'.jpg" class="avatar-l"/><div class="others"><div class="arrow-left"></div><div class="arrow-left-after"></div><pre>' + l.msg + '</pre></div>');
+				if(to == "all"){
+					q_p.find("div.others").before("<div class='avatar-name'>"+l.from+"</div>");
+				}
+				$("#chat_content").append(q_p);
+				q_p.height(q_p.find("div.others").height() + 27 || 57);
+			});
+			sessionStorage.setItem(to, "[]");
+		}
 		updateScrollbar("c");
 	}
 
 	//get current time
-	function now(){
+	function now(force){
+		if(force == undefined) force = false;
 		var date = new Date();
 		var stamp = Math.floor(date.getTime()/1000);
+		if(force){
+			return stamp;
+		}
 		if(stamp - timenow < 60){
 			timenow = stamp;
 			return false;
@@ -277,6 +316,11 @@ $().ready(function(){
 			sh = sc.prop('scrollHeight');
 			ch = sc.prop('clientHeight');
 			sc.find(".scrollbar").height(460 * ch / sh);
+			if(sh > ch){
+				sc.find(".scrollbar").css("margin-top", (sh - ch) * 460 / sh);
+			} else {
+				sc.find(".scrollbar").css("margin-top", sc.scrollTop() * 460 / sh);
+			}
 		} else if(id == "u"){
 			sh = su.prop('scrollHeight');
 			ch = su.prop('clientHeight');
@@ -310,4 +354,9 @@ $().ready(function(){
 		container.prepend("<div class='scrollfield' style='height: "+cc+"px' data-sid='"+id+"'><div class='scrollbar' style='margin-top: 0px; height: "+Math.min(barHeight, cc)+"px'></div></div>");
 		return container;
 	}
+
+	//escape string
+	// function escapeRegExp(str) {
+	// 	return str.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&");
+	// }
 });
