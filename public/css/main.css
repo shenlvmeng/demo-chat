@@ -44,7 +44,7 @@ pre{
 aside{
 	position: absolute;
 	height: 100%;
-	width: 200px;
+	width: 210px;
 	background-color: #2e3238;
 	border-right: 1px solid #ccc;
 }
@@ -122,13 +122,39 @@ aside div#user_list img{
 	width: 40px;
 	height: 40px;
 	float: left;
-	margin: 10px 7px;
+	margin: 10px 4px 10px 7px;
 }
 aside div.user_name{
 	color: ivory;
-	font-size: 15px;
-	line-height: 60px;
-	margin-left: 60px;
+	font-size: 13px;
+	height: 30px;
+	margin-left: 55px;
+}
+aside div.user_name span{
+	display: inline-block;
+	margin-top: 10px;
+}
+aside div.user_name span.name{
+	max-width: 105px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+aside div.user_name span.time{
+	float: right;
+	line-height: 20px;
+	margin-right: 10px;
+	font-size: 10px;
+}
+aside div.last_message{
+	color: #888;
+	font-size: 13px;
+	height: 18px;
+	margin-left: 55px;
+	padding-bottom: 12px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
 }
 aside div#user_list li:hover{
 	cursor: pointer;
@@ -136,8 +162,11 @@ aside div#user_list li:hover{
 aside li.active{
 	background-color: #3a3f45;
 }
+aside li.active div.last_message{
+	color: ivory;
+}
 article{
-	margin-left: 200px;
+	margin-left: 210px;
 }
 @media (max-width: 1000px){
 	article{
@@ -191,7 +220,7 @@ div#say_something{
 }
 @media (min-width: 1000px){
 	div#say_something textarea{
-		width: 784px;
+		width: 774px;
 		height: 125px;
 		border: 0;
 		resize: none;

@@ -43,22 +43,34 @@ $().ready(function(){
 		//set left p height because of float:left
 		var k = (parseInt(data.imgKey, 16)+1) || 1;
 		var p_q = $("<p/>").html('<img src="pic/pic'+k+'.jpg" class="avatar-l"/><div class="others"><div class="arrow-left"></div><div class="arrow-left-after"></div><pre>' + data.msg + '</pre></div>');
+		var timestring, date;
+		date = new Date();
+		timestring = date.getHours() + ':' + (date.getMinutes() < 10 ? ('0' + date.getMinutes()) : date.getMinutes());
 
 		if((data.to == name && to == data.from) || (data.to == "all" && to == "all")){
 			if(to == "all"){
 				p_q.find("div.others").before("<div class='avatar-name'>"+data.from+"</div>");
 			}
 			$("#chat_content").append(p_q);
+			//update user_list
+			$("aside li.active span.time").html(timestring);
+			$("aside li.active div.last_message").html(data.from+":"+data.msg);
 			updateScrollbar("c");
 		} else {
 			//use sessionStorage to store unread message
 			if(data.to == "all"){
+				$("aside li#all span.time").html(timestring);
+				$("aside li#all div.last_message").html(data.from+":"+data.msg);
 				sessionStorage.setItem("all", JSON.stringify(JSON.parse(sessionStorage.getItem("all")).concat({from: data.from, msg: data.msg, time: now(1), k: k})));
 			} else {
 				if(sessionStorage.getItem(data.from) !== null){
 					sessionStorage.setItem(data.from, JSON.stringify(JSON.parse(sessionStorage.getItem(data.from)).concat({msg: data.msg, time: now(1), k: k})));
 				} else {
 					sessionStorage.setItem(data.from, JSON.stringify([{msg: data.msg, time: now(1), k: k}]));
+				}
+				if($("aside li#"+data.from)){
+					$("aside li#"+data.from+" span.time").html(timestring);
+					$("aside li#"+data.from+" div.last_message").html(data.from+":"+data.msg);
 				}
 			}
 		}
@@ -125,9 +137,9 @@ $().ready(function(){
 		$('#user_list ul').empty();
 		var len = 0;
 		$("#user_info img").attr("src", "pic/pic"+(parseInt(users[name], 16)+1)+".jpg");
-		$('#user_list ul').append('<li title="all" class="active"><img src="pic/room.jpg" /><div class="user_name">所有人</div></li>');
+		$('#user_list ul').append('<li id="all" title="all" class="active"><img src="pic/room.jpg" /><div class="user_name"><span class="name">所有人</span><span class="time"></span></div><div class="last_message"></div></li>');
 		for(var i in users){
-			$('#user_list ul').append("<li title='"+i+"'><img src='pic/pic"+(parseInt(users[i], 16)+1)+".jpg' /><div class='user_name'>"+i+"</div></li>");
+			$('#user_list ul').append("<li id='"+i+"' title='"+i+"'><img src='pic/pic"+(parseInt(users[i], 16)+1)+".jpg' /><div class='user_name'><span class='name'>"+i+"</span><span class='time'></span></div><div class='last_message'></div></li>");
 			len++;
 		}
 		if("all" == to){
@@ -156,7 +168,7 @@ $().ready(function(){
 			var log = JSON.parse(sessionStorage.getItem(to));
 			//append each div to #chat_content
 			log.forEach(function(l){
-				date = new Date();
+				date = new Date(l.time * 1000);
 				if(l.time - timenow >= 60){
 					if(timenow == 0){
 						timestring = date.getFullYear() + '-' + (date.getMonth() + 1) + '-' + date.getDate() + ' ' + date.getHours() + ':' + (date.getMinutes() < 10 ? ('0' + date.getMinutes()) : date.getMinutes());
@@ -217,7 +229,11 @@ $().ready(function(){
 	});
 
 	$("#action").click(function(){
+		var timestring, date;
 		var msg = $("#say_something textarea").val();
+		date = new Date();
+		timestring = date.getHours() + ':' + (date.getMinutes() < 10 ? ('0' + date.getMinutes()) : date.getMinutes());
+
 		if(msg.trim() == "") return false;
 		//append message in chat field
 		timemark = now();
@@ -237,6 +253,9 @@ $().ready(function(){
 		}
 		//clear input field
 		$("#say_something textarea").val("").focus();
+		//update user_list
+		$("aside li.active span.time").html(timestring);
+		$("aside li.active div.last_message").html(msg);
 		updateScrollbar("s");
 	});
 
@@ -317,6 +336,7 @@ $().ready(function(){
 			ch = sc.prop('clientHeight');
 			sc.find(".scrollbar").height(460 * ch / sh);
 			if(sh > ch){
+				sc.scrollTop(sh - ch);
 				sc.find(".scrollbar").css("margin-top", (sh - ch) * 460 / sh);
 			} else {
 				sc.find(".scrollbar").css("margin-top", sc.scrollTop() * 460 / sh);
