@@ -17,16 +17,14 @@ module.exports = function(app, users, ousers){
 			res.sendFile('views/login.html', {root: __dirname});
 		})
 		.post(function(req, res){
-			if(users[req.body.nickname]){
+			var nickname = req.body.nickname.trim().replace(/[^\u4e00-\u9fa5_a-zA-Z0-9]/g, "");
+			if(nickname.length > 15 || nickname.length <= 0 || nickname == "所有人" || nickname == "all" || users[nickname]){
 				res.redirect('/signin');
 			} else {
 				//use username + password for `user`
-				if(req.body.nickname.length > 15 || req.body.nickname.length <= 0 || req.body.nickname.trim() == "所有人" || req.body.nickname.trim() == "all") {
-					res.redirect('/signin');
-				}
-				res.cookie('user', req.body.nickname.trim(), {maxAge: 1000*60*60*24*10});
+				res.cookie('user', nickname, {maxAge: 1000*60*60*24*10});
 				res.cookie('key', md5(req.body.password+"shenlvmeng"), {maxAge: 1000*60*60*24*10});
-				users[req.body.nickname.trim()] = md5(req.body.password+"shenlvmeng");
+				users[nickname] = md5(req.body.password+"shenlvmeng");
 				console.log(users);
 				res.redirect('/');
 			}
