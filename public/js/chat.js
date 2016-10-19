@@ -15,7 +15,7 @@ $().ready(function(){
 
 	sessionStorage.setItem("all", "[]");
 	socket.emit('online', {name: name});
-	$("#user_id").html(name);
+	$("#user_id").html(name).attr("title", name);
 	$("#status").attr("class","online");
 	socket.on('online', function(data){
 		console.log(data.name+" is online.");
@@ -61,8 +61,10 @@ $().ready(function(){
 			if(data.to == "all"){
 				$("aside li#all span.time").html(timestring);
 				$("aside li#all div.last_message").html(data.from+":"+data.msg);
+				refreshBubble("all");
 				sessionStorage.setItem("all", JSON.stringify(JSON.parse(sessionStorage.getItem("all")).concat({from: data.from, msg: data.msg, time: now(1), k: k})));
 			} else {
+				refreshBubble(data.from);
 				if(sessionStorage.getItem(data.from) !== null){
 					sessionStorage.setItem(data.from, JSON.stringify(JSON.parse(sessionStorage.getItem(data.from)).concat({msg: data.msg, time: now(1), k: k})));
 				} else {
@@ -137,9 +139,9 @@ $().ready(function(){
 		$('#user_list ul').empty();
 		var len = 0;
 		$("#user_info img").attr("src", "pic/pic"+(parseInt(users[name], 16)+1)+".jpg");
-		$('#user_list ul').append('<li id="all" title="all" class="active"><img src="pic/room.jpg" /><div class="user_name"><span class="name">所有人</span><span class="time"></span></div><div class="last_message"></div></li>');
+		$('#user_list ul').append('<li id="all" title="all" class="active"><img src="pic/room.jpg" /><span class="new"></span><div class="user_name"><span class="name">所有人</span><span class="time"></span></div><div class="last_message"></div></li>');
 		for(var i in users){
-			$('#user_list ul').append("<li id='"+i+"' title='"+i+"'><img src='pic/pic"+(parseInt(users[i], 16)+1)+".jpg' /><div class='user_name'><span class='name'>"+i+"</span><span class='time'></span></div><div class='last_message'></div></li>");
+			$('#user_list ul').append("<li id='"+i+"' title='"+i+"'><img src='pic/pic"+(parseInt(users[i], 16)+1)+".jpg' /><span class='new'></span><div class='user_name'><span class='name'>"+i+"</span><span class='time'></span></div><div class='last_message'></div></li>");
 			len++;
 		}
 		if("all" == to){
@@ -147,14 +149,37 @@ $().ready(function(){
 		}
 		$("#on").html(len);
 		$("#user_list ul > li").click(function(){
-			if($(this).attr('title') != name){
-				to = $(this).attr('title');
+			if($(this).attr('id') != name){
+				to = $(this).attr('id');
+				clearBubble(to);
 				$("#user_list ul > li").removeClass('active');
 				$(this).addClass('active');
 				retarget(len);
 			}
 		});
 		updateScrollbar("u");
+	}
+
+	//refresh new message red bubble
+	function refreshBubble(name){
+		if($("aside li#"+name)){
+			$("aside li#"+name+" span.new").html(function(i, old_h){
+				if(old_h === ""){
+					return 1;
+				} else if(old_h == "..." || old_h == "99"){
+					return "...";
+				} else {
+					return parseInt(old_h) + 1;
+				}
+			});
+		}
+	}
+
+	//clear unread bubble
+	function clearBubble(name){
+		if($("aside li#"+name)){
+			$("aside li#"+name+" span.new").html("");
+		}
 	}
 
 	//refresh chat target
