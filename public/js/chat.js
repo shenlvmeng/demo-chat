@@ -19,6 +19,7 @@ $().ready(function(){
 	socket.emit('online', {name: name});
 	$("#user_id").html(name).attr("title", name);
 	$("#status").attr("class","online");
+	//listen to online event
 	socket.on('online', function(data){
 		console.log(data.name+" is online.");
 		timemark = now();
@@ -34,9 +35,11 @@ $().ready(function(){
 			$("#chat_content").append(text);
 		}
 		$("#qu").html(Object.keys(data.q_users).length);
+		updateScrollbar("c");
 		refreshUsers(data.users);
 		quietusersMarker(data.q_users);
 	});
+	//listen to public and private chat event
 	socket.on('chat', function(data){
 		timemark = now();
 		if(timemark){
@@ -81,6 +84,7 @@ $().ready(function(){
 		//extra height: name--10px(content) + 5px(margin), div.others--{content height} + 2px(border) + 10px(padding)
 		p_q.height(p_q.find("div.others").height() + 27 || 57);
 	});
+	//listen to offline event
 	socket.on('offline', function(data){
 		console.log(data.name+" is offline.");
 		timemark = now();
@@ -88,6 +92,7 @@ $().ready(function(){
 			$("#chat_content").append("<div class='sys'>"+timemark+"</div>");
 		}
 		var text = '<div class="sys">用户 ' + data.name + ' 下线了</div>';
+		updateScrollbar("c");
 		refreshUsers(data.users);
 		quietusersMarker(data.q_users);
 		$("#qu").html(Object.keys(data.q_users).length);
@@ -98,20 +103,18 @@ $().ready(function(){
 			$("#user_list li:first-child").trigger("click");
 		}
 	});
+	//listen to quiet event when someone don't want to be bothered
 	socket.on('quiet', function(data){
 		$("#qu").html(data.len);
 		if(data.name == to){
 			$("#user_list li:first-child").trigger("click");
 		}
-		$("#user_list ul li").filter(function(){
-			return $(this).find(".user_name").html() == data.name;
-		}).unbind("click").find(".user_name").addClass("quiet");
+		$("#user_list ul").find("li#"+data.name).unbind("click").find(".user_name").addClass("quiet");
 	});
+	//listen to wakeup event when someone join chatting from quiet state
 	socket.on('wakeup', function(data){
 		$("#qu").html(data.len);
-		$("#user_list ul li").filter(function(){
-			return $(this).find(".user_name").html() == data.name;
-		}).click(function(){
+		$("#user_list ul").find("li#"+data.name).click(function(){
 			if($(this).attr('title') != name){
 				to = $(this).attr('title');
 				$("#user_list ul > li").removeClass('active');
@@ -119,11 +122,13 @@ $().ready(function(){
 				retarget(2);
 			}
 		}).find(".user_name").removeClass("quiet");
-	})
+	});
+	//listen to server disconnect event
 	socket.on('disconnect', function(){
 		var text = '<div class="screen">连接服务器失败!</div>';
 		$('body').empty().css("background-color","#111").append(text);
 	});
+	//listen to server reconnect event: refresh the page
 	socket.on('reconnect', function(){
 		location.reload();
 	});
@@ -133,9 +138,7 @@ $().ready(function(){
 	//mark quiet users
 	function quietusersMarker(users){
 		for(var i in users){
-			$("#user_list ul li").filter(function(){
-				return $(this).find(".user_name").html() == users[i];
-			}).unbind("click").find(".user_name").addClass("quiet");
+			$("#user_list ul").find("li#"+users[i]).unbind("click").find(".user_name").addClass("quiet");
 		}
 	}
 	//refrensh online user
@@ -337,7 +340,7 @@ $().ready(function(){
 		if(msg.trim() == ""){
 			return false;
 		}
-		
+
 		date = new Date();
 		timestring = date.getHours() + ':' + (date.getMinutes() < 10 ? ('0' + date.getMinutes()) : date.getMinutes());
 
