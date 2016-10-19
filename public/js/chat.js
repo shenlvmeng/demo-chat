@@ -13,6 +13,8 @@ $().ready(function(){
 	var su = appendScrollbar($("#user_list"), "u");
 	var ss = appendScrollbar($("#say_something"), "s");
 
+	//socket.io part
+
 	sessionStorage.setItem("all", "[]");
 	socket.emit('online', {name: name});
 	$("#user_id").html(name).attr("title", name);
@@ -126,6 +128,8 @@ $().ready(function(){
 		location.reload();
 	});
 
+	//function part
+
 	//mark quiet users
 	function quietusersMarker(users){
 		for(var i in users){
@@ -136,26 +140,38 @@ $().ready(function(){
 	}
 	//refrensh online user
 	function refreshUsers(users){
+		var len, info = {};
+		//store history messages first
+		$('#user_list ul').children().each(function(){
+			if($(this).find(".time").html() != ""){
+				info[$(this).attr("id")] = {time: $(this).find(".time").html(), msg: $(this).find("div.last_message").html()};
+			}
+		});
 		$('#user_list ul').empty();
-		var len = 0;
+		len = 0;
 		$("#user_info img").attr("src", "pic/pic"+(parseInt(users[name], 16)+1)+".jpg");
 		$('#user_list ul').append('<li id="all" title="all" class="active"><img src="pic/room.jpg" /><span class="new"></span><div class="user_name"><span class="name">所有人</span><span class="time"></span></div><div class="last_message"></div></li>');
 		for(var i in users){
 			$('#user_list ul').append("<li id='"+i+"' title='"+i+"'><img src='pic/pic"+(parseInt(users[i], 16)+1)+".jpg' /><span class='new'></span><div class='user_name'><span class='name'>"+i+"</span><span class='time'></span></div><div class='last_message'></div></li>");
 			len++;
 		}
+		//reinsert history messages
+		for(var j in info){
+			$("aside li#"+j+" span.time").html(info[j].time);
+			$("aside li#"+j+" div.last_message").html(info[j].msg);
+		}
+		info = {};
+
 		if("all" == to){
 			$("#title").html("大厅 ("+len+")");
 		}
 		$("#on").html(len);
 		$("#user_list ul > li").click(function(){
-			if($(this).attr('id') != name){
-				to = $(this).attr('id');
-				clearBubble(to);
-				$("#user_list ul > li").removeClass('active');
-				$(this).addClass('active');
-				retarget(len);
-			}
+			to = $(this).attr('id');
+			clearBubble(to);
+			$("#user_list ul > li").removeClass('active');
+			$(this).addClass('active');
+			retarget(len);
 		});
 		updateScrollbar("u");
 	}
@@ -185,7 +201,14 @@ $().ready(function(){
 	//refresh chat target
 	function retarget(len){
 		var q_p, timestring, date;
-		$("#title").html(to == "all" ? "大厅 ("+len+")" : to+" (2)");
+		if(to == "all"){
+			$("#title").html("大厅 ("+len+")");
+		} else if(to == name){
+			$("#title").html("自己");
+		} else {
+			$("#title").html(to+" (2)");
+		}
+
 		$("#chat_content .sys").remove();
 		$("#chat_content p").remove();
 		timenow = 0;
@@ -236,6 +259,61 @@ $().ready(function(){
 		return time;
 	}
 
+	//update scroll height and position
+	function updateScrollbar(id){
+		var sh = 0;
+		var ch = 0;
+		if(id == "c"){
+			sh = sc.prop('scrollHeight');
+			ch = sc.prop('clientHeight');
+			sc.find(".scrollbar").height(460 * ch / sh);
+			if(sh > ch){
+				sc.scrollTop(sh - ch);
+				sc.find(".scrollbar").css("margin-top", (sh - ch) * 460 / sh);
+			} else {
+				sc.find(".scrollbar").css("margin-top", sc.scrollTop() * 460 / sh);
+			}
+		} else if(id == "u"){
+			sh = su.prop('scrollHeight');
+			ch = su.prop('clientHeight');
+			su.find(".scrollbar").height(665 * ch / sh);
+		} else if(id == "s"){
+			sh = ss.find("textarea").prop('scrollHeight');
+			ch = ss.find("textarea").prop('clientHeight');
+			ss.find(".scrollbar").height(132 * ch / sh);
+			if(sh > ch){
+				ss.find(".scrollbar").css("margin-top", (sh - ch) * 132 / sh);
+			} else {
+				ss.find(".scrollbar").css("margin-top", ss.find("textarea").scrollTop() * 132 / sh);
+			}
+		}
+	}
+
+	function appendScrollbar(container, id){
+		//container is a jQuery object
+		container.addClass("scrollContainer");
+		//height of the field
+		var c = container.prop('clientHeight');
+		if(id == "c"){
+			var cc = c - 20;
+		} else if(id == "u") {
+			var cc = c - 10;
+		} else if(id == "s") {
+			var cc = c - 5;
+		}
+		var barHeight = cc * c / container.prop('scrollHeight');
+		
+		container.prepend("<div class='scrollfield' style='height: "+cc+"px' data-sid='"+id+"'><div class='scrollbar' style='margin-top: 0px; height: "+Math.min(barHeight, cc)+"px'></div></div>");
+		return container;
+	}
+
+	//escape string
+	// function escapeRegExp(str) {
+	// 	return str.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&");
+	// }
+
+	//event listener part
+
 	//change status
 	$("#status").click(function(){
 		if(!isQuiet){
@@ -256,10 +334,13 @@ $().ready(function(){
 	$("#action").click(function(){
 		var timestring, date;
 		var msg = $("#say_something textarea").val();
+		if(msg.trim() == ""){
+			return false;
+		}
+		
 		date = new Date();
 		timestring = date.getHours() + ':' + (date.getMinutes() < 10 ? ('0' + date.getMinutes()) : date.getMinutes());
 
-		if(msg.trim() == "") return false;
 		//append message in chat field
 		timemark = now();
 		if(timemark){
@@ -273,7 +354,7 @@ $().ready(function(){
 		p.height(p.find("div.self").height() + 10 || 40);
 		updateScrollbar("c");
 
-		if(!isQuiet){
+		if(!isQuiet && to != name){
 			socket.emit('chat', {from: name, to: to, msg: msg});
 		}
 		//clear input field
@@ -352,56 +433,4 @@ $().ready(function(){
 		}
 	});
 
-	//update scroll height and position
-	function updateScrollbar(id){
-		var sh = 0;
-		var ch = 0;
-		if(id == "c"){
-			sh = sc.prop('scrollHeight');
-			ch = sc.prop('clientHeight');
-			sc.find(".scrollbar").height(460 * ch / sh);
-			if(sh > ch){
-				sc.scrollTop(sh - ch);
-				sc.find(".scrollbar").css("margin-top", (sh - ch) * 460 / sh);
-			} else {
-				sc.find(".scrollbar").css("margin-top", sc.scrollTop() * 460 / sh);
-			}
-		} else if(id == "u"){
-			sh = su.prop('scrollHeight');
-			ch = su.prop('clientHeight');
-			su.find(".scrollbar").height(665 * ch / sh);
-		} else if(id == "s"){
-			sh = ss.find("textarea").prop('scrollHeight');
-			ch = ss.find("textarea").prop('clientHeight');
-			ss.find(".scrollbar").height(132 * ch / sh);
-			if(sh > ch){
-				ss.find(".scrollbar").css("margin-top", (sh - ch) * 132 / sh);
-			} else {
-				ss.find(".scrollbar").css("margin-top", ss.find("textarea").scrollTop() * 132 / sh);
-			}
-		}
-	}
-
-	function appendScrollbar(container, id){
-		//container is a jQuery object
-		container.addClass("scrollContainer");
-		//height of the field
-		var c = container.prop('clientHeight');
-		if(id == "c"){
-			var cc = c - 20;
-		} else if(id == "u") {
-			var cc = c - 10;
-		} else if(id == "s") {
-			var cc = c - 5;
-		}
-		var barHeight = cc * c / container.prop('scrollHeight');
-		
-		container.prepend("<div class='scrollfield' style='height: "+cc+"px' data-sid='"+id+"'><div class='scrollbar' style='margin-top: 0px; height: "+Math.min(barHeight, cc)+"px'></div></div>");
-		return container;
-	}
-
-	//escape string
-	// function escapeRegExp(str) {
-	// 	return str.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&");
-	// }
 });

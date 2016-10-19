@@ -45,7 +45,7 @@ io.on('connection', function(socket){
 	//chat message
 	socket.on('chat', function(data){
 		data.imgKey = users[data.from].substr(-1) || "0";
-		if(quiet_users[data.to] || quiet_users[data.from]){
+		if(quiet_users[data.to] || quiet_users[data.from] || data.from == data.to){
 			return false;
 		}
 		if(data.to == "all"){
